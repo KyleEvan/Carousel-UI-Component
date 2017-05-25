@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>Responsive Grid</title>
+
+    <!-- Bootstrap -->
+    <link href="resources/bootstrap-3.3.7-dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="resources/font-awesome-4.7.0/css/font-awesome.min.css">
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    <style>
+
+      /* Global Base Styles
+      =====================================*/
+      h1{
+        margin-bottom:50px;
+      }
+      a:hover, a:focus, a:visited{
+        text-decoration:none;
+      }
+
+
+
+      .box{
+        width:100%;
+        height:250px;
+        border-radius:5px;
+        border:1px solid #666;
+        margin-bottom:30px;
+      }
+      .box h2{
+        font-size:24px;
+        margin:0;
+        padding:20px;
+      }
+
+      #zoom-view{
+        position: fixed;
+        top:0;
+        left:0;
+        width: 100%;
+        height: 100%;
+        opacity:0;
+        z-index: 99;
+        overflow:hidden;
+        perspective: 1000px;
+        pointer-events:none;
+        -webkit-transition: .5s;
+        -moz-transition: .5s;
+        -ms-transition: .5s;
+        -o-transition: .5s;
+        transition: .5s;
+      }
+      .zoom-controls{
+        position: fixed;
+        width:70px;
+        height:70px;
+        font-size:40px;  
+        color:#000;
+        margin: 15px;
+        padding: 15px;
+        text-align:center;
+        vertical-align:middle;
+        cursor:pointer;
+        z-index:100;
+        -webkit-transition: .5s;
+        -moz-transition: .5s;
+        -ms-transition: .5s;
+        -o-transition: .5s;
+        transition: .5s;
+      }
+
+      .zoom-view-exit{
+        top: 0;
+        right: 0;
+      }
+      .zoom-next-slide{
+        top:50%;
+        right:0;
+        margin-top:-33px;
+      }
+      .zoom-prev-slide{
+        top:50%;
+        left:0;
+        margin-top:-33px;
+      }
+
+      .zoom-view-slides{
+        margin:0;
+        padding:0;
+        width:100%;
+        height:100%;
+        list-style:none;
+        -webkit-transform-style:preserve-3d;
+        transform-style:preserve-3d;
+        -webkit-transform: translate3d(0,0,150px);
+        transform: translate3d(0,0,150px);
+        -webkit-transition: -webkit-transform .5s;
+        -moz-transition: .5s;
+        -ms-transition: .5s;
+        -o-transition: .5s;
+        transition: transform .5s;
+        /*-webkit-transition-delay: 2s;  Safari 
+        transition-delay: 2s;*/
+      }
+      #zoom-view.open ul.zoom-view-slides{
+        -webkit-transform: translate3d(0,0,0);
+        transform: translate3d(0,0,0);
+      }
+
+      .zoom-slide{
+        position:absolute;
+        width:800px;
+        height:560px;
+        top:50%;
+        left:50%;
+        margin-top:-280px;
+        margin-left:-400px;
+        background-color:#fff;
+        border-radius:10px;
+        box-shadow: 0px 5px 30px rgba(0,0,0,0.5);
+        overflow:hidden;
+        -webkit-transition: .5s;
+        -moz-transition: .5s;
+        -ms-transition: .5s;
+        -o-transition: .5s;
+        transition: .5s;
+      }
+      .zoom-slide h2{
+        margin:0;
+        padding:20px;
+      }
+      .zoom-slide:after{
+        content: '';
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        background: rgba(255,255,255,0.8);
+        -webkit-transition: background 0.5s;
+        -moz-transition: .5s;
+        -ms-transition: .5s;
+        -o-transition: .5s;
+        transition: background 0.5s;
+      }
+      .zoom-slide.current:after{
+        background: rgba(255,255,255,0);
+        -webkit-transition: background 0.5s;
+        transition: background 0.5s;
+      }
+
+      #zoom-view.open{
+        pointer-events:auto;
+        -webkit-transition: .5s;
+        -moz-transition: .5s;
+        -ms-transition: .5s;
+        -o-transition: .5s;
+        transition: .5s;
+        opacity:1;
+        background-color: rgba(0,0,0,.6);
+      }
+
+      .current{
+        z-index:1;
+      }
+
+
+
+
+    </style>
+  </head>
+  <body>
+
+    <div id="zoom-view">
+      <nav> <!-- Controls -->
+        <span class="zoom-controls zoom-view-exit fa fa-times"></span>
+        <span class="zoom-controls zoom-next-slide fa fa-chevron-right"></span>
+        <span class="zoom-controls zoom-prev-slide fa fa-chevron-left"></span>
+      </nav>
+    </div>
+
+    <div class="container">
+      <h1>Responsive Grid Demo</h1>
+      <div class="row">
+        <div class="col-xs-12 col-sm-4">
+          <div class="box">
+            <h2>Content Box 1</h2>
+          </div>
+        </div>
+        <div class="col-xs-12 col-sm-4">
+          <div class="box">
+            <h2>Content Box 2</h2>
+          </div>
+        </div>
+        <div class="col-xs-12 col-sm-4">
+          <div class="box">
+            <h2>Content Box 3</h2>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-xs-12 col-sm-4">
+          <div class="box">
+            <h2>Content Box 4</h2>
+          </div>
+        </div>
+        <div class="col-xs-12 col-sm-4">
+          <div class="box">
+            <h2>Content Box 5</h2>
+          </div>
+        </div>
+        <div class="col-xs-12 col-sm-4">
+          <div class="box">
+            <h2>Content Box 6</h2>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="resources/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
+    <script>
+      ;(function(window, document, $, undefined){
+
+        // Zoom-view cooldown
+        var cd = 500; // transition time in ms
+        var ready = true; // when not one cooldown, zoom-view init is ready
+
+        // Viewport dimensions
+        var viewport = {width: $(window).width(), height: $(window).height()};
+
+        
+
+        // Event Listeners
+        $( ".box" ).click(function(){ zoomView( $(".box").index(this) ); });
+        $( ".zoom-controls").click(function(){ controls($(this)) });
+        $( window ).on('keydown', function(event){
+          // Move slides with left and right arrow keys
+          var key = event.which || event.keyCode;
+          var node;
+          if(key == 37) node = $(".zoom-prev-slide"); // Left
+          if(key == 39) node = $(".zoom-next-slide"); // Right
+          moveSlides(node);
+        });
+          
+        // If window is resized, update viewport object
+        // Reposition slides if window is resized
+        var timer;
+        $(window).on('resize', function(e) {
+          viewport = {width: $(window).width(), height: $(window).height()};
+          
+          // Timeout function executed at end of resize
+          clearTimeout(timer);
+          timer = setTimeout(function() {
+            positionSlides($(".zoom-view-slides").children(".current").index());
+          }, 250);
+        });
+
+
+
+
+        // Initializes zoom-view
+        // Calls functions to create and position new elements for zoom-view
+        function zoomView(i){
+          if(ready){
+            createSlideShow(i);
+            positionSlides(i);
+            setTimeout(function() {
+                $('#zoom-view').addClass('open');
+            }, 100);
+            ready = false;
+            console.log(ready);
+            setTimeout(function(){ ready = true; console.log(ready); }, cd);
+          }
+        }
+
+
+        function createSlideShow(index){
+          // Create slides container as an ul.zoom-view-slides
+          var slidesContainer = document.createElement('ul');
+          slidesContainer.className = "zoom-view-slides";
+          document.getElementById("zoom-view").appendChild(slidesContainer);
+
+          // Get html from existing slides
+          // Create new slide elements
+          // Append new slides to ul slideContainer
+          $(".box").each(function(ind){
+            var html = $(this).html();
+            var slide = document.createElement('li');
+            slide.className = "zoom-slide";
+            slide.innerHTML = html;
+            document.getElementsByClassName("zoom-view-slides")[0].appendChild(slide);
+          });
+        }
+
+
+        function positionSlides(index){
+          $(".zoom-slide").each(function(ind){
+            var diff = ind - index; 
+            var percentage = .75; // percentage of viewport width
+
+            if($(this).hasClass("current")) $(this).removeClass("current");
+
+            if(diff == 0){
+              $(this).addClass("current");
+              $(this).removeAttr('style');
+              return;
+            } 
+            if(diff < 0){
+              if(diff == -1){
+                $(this).css( "transform", "translate3d(-"+ (viewport.width*percentage) +"px , 0px, -150px)" );
+              }else{
+                $(this).css( "transform", "translate3d(-"+ (viewport.width*2*percentage) +"px , 0px, -150px)" );
+              }
+            }
+            else if(diff > 0){
+              if(diff == 1){
+                $(this).css( "transform", "translate3d("+ (viewport.width*percentage) +"px , 0px, -150px)" );
+              }else{
+                $(this).css( "transform", "translate3d("+ (viewport.width*2*percentage) +"px , 0px, -150px)" );
+              }
+            }
+          });
+
+          // Check zoom-view arrows
+          // If at the beginning or the end, make arrow 'inactive' (reduce opacity)
+          if($(".zoom-slide").last().hasClass("current")) $(".zoom-next-slide").css("opacity", "0.4");
+          else if($(".zoom-slide").first().hasClass("current")) $(".zoom-prev-slide").css("opacity", "0.4");
+          else $(".zoom-next-slide, .zoom-prev-slide").removeAttr('style'); 
+           
+        }
+
+
+        // Determines which arrow was clicked and changes slides index accordingly
+        // Passes new index into positionSlides()
+        function moveSlides(el){
+          var currentSlide = ($(".zoom-view-slides").children(".current").index());
+          if(el.hasClass("zoom-next-slide")){
+            if(currentSlide < ($(".zoom-slide").length - 1)){
+              currentSlide ++;
+            }
+          }else if(el.hasClass("zoom-prev-slide")){
+            if(currentSlide > 0){
+              currentSlide --;
+            }
+          }
+          positionSlides(currentSlide);
+        }
+
+
+
+        // Determines which button was clicked
+        // and calls the respective function
+        function controls(el){
+          // If 'x' is clicked, call close zoom-view function
+          if(el.hasClass("zoom-view-exit")){
+            closeZoomView();
+          }
+          // Otherwise, one of the arrows was clicked so need to move the slides
+          else{ moveSlides(el); }
+        }
+
+
+        // Close zoom-view (remove open class)
+        // Remove slide container and slides
+        function closeZoomView(){
+          // Initializes zoom-view close
+          $("#zoom-view").removeClass("open");
+          // setTimeout removes slides after transition .5s
+          setTimeout(function() {
+            $(".zoom-view-slides").remove();
+          }, 500);
+        }
+
+      })(window, document, jQuery);
+    </script>
+  </body>
+</html>
